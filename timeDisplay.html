@@ -28,6 +28,12 @@
 
   <div class="display">
     <div class="overlay"><span></span>
+
+      <input type="range" name="range" value="50" min="0" max="100" id="inputRange" class="inputRange"/>
+
+      <img src="volume-2.png" alt="" class="volume-image" id="volumeImage">
+      <audio src="alarm.mp3" id = "audio"></audio>
+      
       <p>科目名を設定してください。</p>
       <div class="form-group">
         <form id="subject-form">
@@ -42,7 +48,13 @@
               <label for="subject-1">1コマ目</label>
               <span class="focus_line"></span>
             </div>
+            <div class="alarm-area">
+              <img src="alarm-off.png" id="alarm-1-1" alt="alarm-off" class="clickable-alarm" title="1コマ目 開始時">
+              <img src="alarm-off.png" id="alarm-1-2" alt="alarm-off" class="clickable-alarm" title="1コマ目 日誌">
+              <img src="alarm-off.png" id="alarm-1-3" alt="alarm-off" class="clickable-alarm" title="1コマ目 終了時">
+            </div>
           </div>
+
           <div class="controls">
             <div class="cp_iptxt">
               <input type="text" id="subject-2-1" class="ef" placeholder="">
@@ -54,7 +66,13 @@
               <label for="subject-2">2コマ目</label>
               <span class="focus_line"></span>
             </div>
+            <div class="alarm-area">
+              <img src="alarm-off.png" id="alarm-2-1" alt="alarm-off" class="clickable-alarm" title="2コマ目 開始時">
+              <img src="alarm-off.png" id="alarm-2-2" alt="alarm-off" class="clickable-alarm" title="2コマ目 日誌">
+              <img src="alarm-off.png" id="alarm-2-3" alt="alarm-off" class="clickable-alarm" title="2コマ目 終了時">
+            </div>
           </div>
+
           <div class="controls">
             <div class="cp_iptxt">
               <input type="text" id="subject-3-1" class="ef" placeholder="">
@@ -66,7 +84,13 @@
               <label for="subject-3">3コマ目</label>
               <span class="focus_line"></span>
             </div>
+            <div class="alarm-area">
+              <img src="alarm-off.png" id="alarm-3-1" alt="alarm-off" class="clickable-alarm" title="3コマ目 開始時">
+              <img src="alarm-off.png" id="alarm-3-2" alt="alarm-off" class="clickable-alarm" title="3コマ目 日誌">
+              <img src="alarm-off.png" id="alarm-3-3" alt="alarm-off" class="clickable-alarm" title="3コマ目 終了時">
+            </div>
           </div>
+
           <div class="controls">
             <div class="cp_iptxt">
               <input type="text" id="subject-4-1" class="ef" placeholder="">
@@ -78,7 +102,13 @@
               <label for="subject-4">4コマ目</label>
               <span class="focus_line"></span>
             </div>
+            <div class="alarm-area">
+              <img src="alarm-off.png" id="alarm-4-1" alt="alarm-off" class="clickable-alarm" title="4コマ目 開始時">
+              <img src="alarm-off.png" id="alarm-4-2" alt="alarm-off" class="clickable-alarm" title="4コマ目 日誌">
+              <img src="alarm-off.png" id="alarm-4-3" alt="alarm-off" class="clickable-alarm" title="4コマ目 終了時">
+            </div>
           </div>
+
           <div class="controls">
             <div class="cp_iptxt">
               <input type="text" id="subject-5-1" class="ef" placeholder="">
@@ -90,7 +120,13 @@
               <label for="subject-5">5コマ目</label>
               <span class="focus_line"></span>
             </div>
+            <div class="alarm-area">
+              <img src="alarm-off.png" id="alarm-5-1" alt="alarm-off" class="clickable-alarm" title="5コマ目 開始時">
+              <img src="alarm-off.png" id="alarm-5-2" alt="alarm-off" class="clickable-alarm" title="5コマ目 日誌">
+              <img src="alarm-off.png" id="alarm-5-3" alt="alarm-off" class="clickable-alarm" title="5コマ目 終了時">
+            </div>
           </div>
+
           <div class="controls">
             <div class="cp_iptxt">
               <input type="text" id="subject-6-1" class="ef" placeholder="">
@@ -102,9 +138,14 @@
               <label for="subject-6">6コマ目</label>
               <span class="focus_line"></span>
             </div>
+            <div class="alarm-area">
+              <img src="alarm-off.png" id="alarm-6-1" alt="alarm-off" class="clickable-alarm" title="6コマ目 開始時">
+              <img src="alarm-off.png" id="alarm-6-2" alt="alarm-off" class="clickable-alarm" title="6コマ目 日誌">
+              <img src="alarm-off.png" id="alarm-6-3" alt="alarm-off" class="clickable-alarm" title="6コマ目 終了時">
+            </div>
           </div>
+          
       </div>
-      </form>
     </div>
 
     <div id=date class="text"></div>
