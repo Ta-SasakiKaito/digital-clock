@@ -123,6 +123,29 @@ function updateSubject() {
         start = timeTable[i][1].split(':');
         let startMinutes = parseInt(start[0]) * 60 + parseInt(start[1]);
         if (nowTime >= startMinutes) {
+            let timeTableY = i
+            switch (timeTableY) {
+                case 1:
+                case 2:
+                case 3:
+                    timeTableY = timeTableY - 1;
+                    break;
+                case 5:
+                case 6:
+                case 7:
+                    timeTableY = timeTableY - 2;
+                    break;
+                default:
+                    timeTableY = -1
+                    break;
+            }
+
+            if (nowTime == startMinutes && second == 0 && alarmStates[timeTableY][0]) {
+
+                alarmPlay();
+
+            }
+
             currentSubjectStart = timeTable[i][0];
 
             break;
@@ -130,11 +153,15 @@ function updateSubject() {
     }
 
     let end;
+    let endMinutes;
+    let endY = 0;
     for (let i = 0; i <= timeTable.length; i++) {
+        endY = i;
         end = timeTable[i][2].split(':');
-        let endMinutes = parseInt(end[0]) * 60 + parseInt(end[1]);
+        endMinutes = parseInt(end[0]) * 60 + parseInt(end[1]);
         let afterSchool = timeTable[timeTable.length - 1][2].split(':');
         let afterSchoolMinutes = parseInt(afterSchool[0]) * 60 + parseInt(afterSchool[1]);
+
 
         if (nowTime == endMinutes && timeTable[i][2] == timeTable[i + 1][1]) {
             currentSubjectEnd = timeTable[i + 1][0];
@@ -148,6 +175,29 @@ function updateSubject() {
             break;
         }
     }
+    switch (endY) {
+        case 1:
+        case 2:
+        case 3:
+            endY = endY - 1;
+            break;
+        case 5:
+        case 6:
+        case 7:
+            endY = endY - 2;
+            break;
+        default:
+            endY = -1
+            break;
+    }
+
+    if (nowTime == endMinutes && second == 0 && alarmStates[endY][2]) {
+
+        alarmPlay();
+
+    }
+
+
     start = start.join(':');
     end = end.join(':');
 
@@ -262,10 +312,13 @@ function updateSubject() {
     let needDiary = 0;
     //日誌開始時間を格納
     let diaryStartTime;
+
+    let timeTableY = 0;
     for (let i = 0; i < timeTable.length; i++) {
         if (currentSubject[0] == timeTable[i][0]) {
             needDiary = timeTable[i][3];
             diaryStartTime = timeTable[i][2];
+            timeTableY = i;
             break;
         }
     }
@@ -275,8 +328,38 @@ function updateSubject() {
         parseInt(diaryStartTime.split(':')[1]);
     //日誌メッセージを表示
     let diaryMessage = '残り{n分}になりました。日誌を記入しましょう！';
+    let countAlarm = 0;
     //変数にはそのコマの終了時刻を格納。現在時刻との差が5分になるとメッセージを表示
     if (diaryStartTime - nowTime <= 5 && needDiary == 1) {//メッセージ表示
+
+        if (diaryStartTime - nowTime == 5 && second === 0) {//日誌アラーム用
+            switch (timeTableY) {
+                case 1:
+                case 2:
+                case 3:
+                    timeTableY = timeTableY - 1;
+                    break;
+                case 5:
+                case 6:
+                case 7:
+                    timeTableY = timeTableY - 2;
+                    break;
+                default:
+                    timeTableY = -1
+                    break;
+            }
+
+
+            if (timeTableY >= 0) {
+                if (alarmStates[timeTableY][1] == 1) {
+                    alarmPlay();
+                    countAlarm++;
+                    console.log(countAlarm);
+                }
+            }
+
+        }
+
         diaryMessage = diaryMessage.replace('{n分}', '5分');
         diaryText.innerText = diaryMessage;
     } else {//日誌時間外のメッセージ削除
@@ -306,6 +389,9 @@ function updateSubject() {
 }
 
 setInterval(updateSubject, 250);
+
+let bgColor = "";
+let textColor = "";
 
 function countdownMessageOutput(countdownEndTime, nowTime, nowSecond, currentSchedule, countdownText, currentSubject) {
     let countdownMessage;
@@ -348,9 +434,12 @@ const textColorCode = [
     ['night', '#ffffff', '#002436', '#ffffff'],
 ];
 
+let CITY = 'tokyo';
+
 function colorChange() {//背景と文字の色を変える。インターバルはこっち。
     const API_KEY = 'df3ff73321f444bbb1e2f97a6bfaa639';
-    const CITY = 'tokyo';
+
+    CITY = getCityFromURL();
 
     let weather;
 
@@ -378,6 +467,19 @@ function colorChange() {//背景と文字の色を変える。インターバル
 
 }
 
+// URLクエリパラメータから都市名を取得する関数
+function getCityFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const city = urlParams.get('city');
+
+    // クエリパラメータ 'city' が存在する場合、それを使用
+    if (city) {
+        return city;
+    }
+    // 存在しない場合はデフォルトの 'tokyo' を使用
+    return CITY;
+}
+
 function crossFadeColors(pattern) {//背景と文字の色のクロスフェードを行う。デバックならこちら推奨
     //patter -> Clear-morning
     if (pattern.includes('-') == false) {
@@ -388,7 +490,7 @@ function crossFadeColors(pattern) {//背景と文字の色のクロスフェー�
             pattern = pattern + '-morning';
         } else if (hour >= 10 && hour < 16) {//昼
             pattern = pattern + '-afternoon';
-        } else if (hour >= 16 && hour < 20) {//夕方
+        } else if (hour >= 16 && hour < 18) {//夕方
             pattern = pattern + '-evening';
         } else {//夜
             pattern = pattern + '-night';
@@ -410,11 +512,13 @@ function crossFadeColors(pattern) {//背景と文字の色のクロスフェー�
         }
     }
 
-    const bgColor = backgroundColorCode[colorCodeNo[0]][colorCodeNo[1]];
-    const textColor = textColorCode[colorCodeNo[0]][colorCodeNo[1]];
+    bgColor = backgroundColorCode[colorCodeNo[0]][colorCodeNo[1]];
+    textColor = textColorCode[colorCodeNo[0]][colorCodeNo[1]];
 
     body.style.transition = `background-color ${transitionTime}s ease`;
     body.style.backgroundColor = bgColor;
+
+    updateGradient(bgColor);
 
 
     const textElements = document.querySelectorAll("div, h1, h2, span, a");
@@ -489,32 +593,32 @@ $(".fullScreenbtn").click(function () {
 //フルスクリーンOFFになったら...
 document.addEventListener('fullscreenchange', function () {
     if (!document.fullscreenElement) {
-      // フルスクリーンがオフになったときに実行したい関数をここに呼び出す
-      document.querySelector (".fullScreenbtn").classList.remove('active');
-      isFullScreenOpen = false;
-      disableWakeLock();
+        // フルスクリーンがオフになったときに実行したい関数をここに呼び出す
+        document.querySelector(".fullScreenbtn").classList.remove('active');
+        isFullScreenOpen = false;
+        disableWakeLock();
     }
-  });
+});
 
 //escロック
 async function lockEscapeKey() {
     try {
-      const keyboard = await navigator.keyboard.lock(['Escape']);
-      
-      keyboard.addEventListener('keydown', (event) => {
-        // "esc" キーが押された場合のカスタムアクションをここに追加します
-        console.log('esc キーがロックされました。');
-      });
-  
-      keyboard.addEventListener('keyup', (event) => {
-        // "esc" キーが離された場合のカスタムアクションをここに追加します
-        console.log('esc キーがロック解除されました。');
-      });
+        const keyboard = await navigator.keyboard.lock(['Escape']);
+
+        keyboard.addEventListener('keydown', (event) => {
+            // "esc" キーが押された場合のカスタムアクションをここに追加します
+            console.log('esc キーがロックされました。');
+        });
+
+        keyboard.addEventListener('keyup', (event) => {
+            // "esc" キーが離された場合のカスタムアクションをここに追加します
+            console.log('esc キーがロック解除されました。');
+        });
     } catch (error) {
     }
-  }
+}
 
-  lockEscapeKey();
+lockEscapeKey();
 
 
 //科目名を入力するフォームを取得
@@ -642,10 +746,10 @@ async function disableWakeLock() {
         if (wakeLock !== null) {
             //タイムアウトが続行中のみ
             if (checkTimeout()) {
-            // Wake Lockを解放
-            await wakeLock.release();
+                // Wake Lockを解放
+                await wakeLock.release();
 
-            // Wake Lockが解放されたら、成功メッセージを表示
+                // Wake Lockが解放されたら、成功メッセージを表示
                 console.log('Wake LockがOFFになりました。');
 
                 timeoutId = null;
@@ -661,26 +765,26 @@ async function disableWakeLock() {
 
 //タイムアウトする時間（分単位）
 const TimeoutMinutes = 0;//0の場合タイムアウトは無し
-console.log("フルスクリーンボタンを押してから"+TimeoutMinutes+"分スリープ機能をブロックします。");
+console.log("フルスクリーンボタンを押してから" + TimeoutMinutes + "分スリープ機能をブロックします。");
 // setTimeoutを実行する関数
 
 function startTimeout() {
     timeoutIdOutput = null;
 
-    if(TimeoutMinutes > 0){
-    //「この時間までスリープ機能をブロックします。」メッセージ
-    let timeoutTime = new Date(now.getTime() + TimeoutMinutes * 60 * 1000);
-    console.log(timeoutTime.getHours()+':'+timeoutTime.getMinutes()+':'+timeoutTime.getSeconds()+'までスリープ機能をブロックします。');
+    if (TimeoutMinutes > 0) {
+        //「この時間までスリープ機能をブロックします。」メッセージ
+        let timeoutTime = new Date(now.getTime() + TimeoutMinutes * 60 * 1000);
+        console.log(timeoutTime.getHours() + ':' + timeoutTime.getMinutes() + ':' + timeoutTime.getSeconds() + 'までスリープ機能をブロックします。');
 
-    // 後に実行する
-    timeoutIdOutput = setTimeout(function() {
-        disableWakeLock();
-    }, TimeoutMinutes * 60 * 1000);
+        // 後に実行する
+        timeoutIdOutput = setTimeout(function () {
+            disableWakeLock();
+        }, TimeoutMinutes * 60 * 1000);
     }
     // setTimeoutのIDを返す（後でキャンセルするために必要）
     return timeoutIdOutput;
-  }
-  
+}
+
 // setTimeoutをキャンセルする関数
 function cancelTimeout(timeoutId) {
     if (checkTimeout()) {
@@ -700,4 +804,173 @@ function checkTimeout() {
         return false;
     }
 }
-  
+
+// 18個の画像の状態を格納する2次元配列(初期設定で3~6コマ目の日誌を記入するアラームはオンにする)
+//というより日誌アラーム切り替えボタンしか実装してないので...
+let initialAlarmStates = [
+    [0, 0, 0], // alarm-1-1, alarm-1-2, alarm-1-3
+    [0, 0, 0], // alarm-2-1, alarm-2-2, alarm-2-3
+    [0, 0, 0], // alarm-3-1, alarm-3-2, alarm-3-3
+    [0, 0, 0], // alarm-4-1, alarm-4-2, alarm-4-3
+    [0, 0, 0], // alarm-5-1, alarm-5-2, alarm-5-3
+    [0, 0, 0]  // alarm-6-1, alarm-6-2, alarm-6-3
+];
+
+// URLからクエリパラメータを取得する関数
+function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
+
+// alarmSelectの値を取得
+const alarmSelect = getQueryParam('alarmSelect');
+
+// alarmSelectが指定されている場合、その値を配列に変換
+if (alarmSelect) {
+    const alarmValues = alarmSelect.split('').map(Number); // 文字列を数字の配列に変換
+    // 初期の状態に基づいて、alarmStatesを更新
+    for (let i = 0; i < initialAlarmStates.length; i++) {
+        for (let j = 0; j < initialAlarmStates[i].length; j++) {
+            initialAlarmStates[i][j] = alarmValues[i * 3 + j] || 0; // 値を設定
+        }
+    }
+}
+
+let alarmStates = initialAlarmStates; // デフォルトの状態
+//アラーム関連はここから
+$(document).ready(function () {
+
+    // URLから直接アクセスしたか、再読み込みかを判断する
+    const urlParams = new URLSearchParams(window.location.search);
+    const useLocalStorage = !urlParams.has('new'); // URLに "new" パラメータがなければローカルストレージを使う
+
+    if (useLocalStorage && localStorage.getItem('alarmStates')) {
+        // ローカルストレージに保存されたデータがあれば使用
+        alarmStates = JSON.parse(localStorage.getItem('alarmStates'));
+    } else {
+        // 新しいセッション、または "new" パラメータがある場合は初期状態を使用
+        alarmStates = initialAlarmStates;
+    }
+
+    // ページ読み込み時に画像の初期状態を反映
+    for (let i = 0; i < alarmStates.length; i++) {
+        for (let j = 0; j < alarmStates[i].length; j++) {
+            let imgId = `#alarm-${i + 1}-${j + 1}`; // 画像のIDを作成（alarm-1-1 など）
+            if (alarmStates[i][j] === 1) {
+                $(imgId).attr('src', 'alarm-on.png'); // 状態が1ならON画像に切り替え
+            } else {
+                $(imgId).attr('src', 'alarm-off.png'); // 状態が0ならOFF画像にする
+            }
+        }
+    }
+
+    // クリックイベントを全ての画像に適用
+    $('.clickable-alarm').on('click', function () {
+        const currentId = $(this).attr('id'); // クリックされた画像のIDを取得
+        const parts = currentId.split('-'); // IDを分解
+        const rowIndex = parseInt(parts[1]) - 1; // 行インデックスを取得（1から始まるので-1）
+        const colIndex = parseInt(parts[2]) - 1; // 列インデックスを取得（1から始まるので-1）
+
+        // 画像の状態を切り替える
+        if (alarmStates[rowIndex][colIndex] === 0) {
+            $(this).attr('src', 'alarm-on.png'); // ON画像に変更
+            alarmStates[rowIndex][colIndex] = 1; // 状態をONに更新
+        } else {
+            $(this).attr('src', 'alarm-off.png'); // OFF画像に変更
+            alarmStates[rowIndex][colIndex] = 0; // 状態をOFFに更新
+        }
+
+        // ローカルストレージに状態を保存
+        localStorage.setItem('alarmStates', JSON.stringify(alarmStates));
+
+        // 現在の状態をコンソールに表示（デバッグ用）
+        console.log(alarmStates);
+    });
+});
+
+//音量バー
+const inputRange = document.getElementById('inputRange');
+
+// 値に基づいてlinear-gradientの色を変更する関数
+function updateGradient(color1) {
+    const value = inputRange.value;
+
+    // linear-gradientを更新
+    inputRange.style.background = `linear-gradient(0deg, ${color1} ${value}%, transparent ${value}%)`;
+}
+
+inputRange.addEventListener("input", function () {
+    const ratio = (this.value - this.min) / (this.max - this.min) * 100;
+    this.style.background = `linear-gradient(0deg, ${bgColor} ${ratio}%, transparent ${ratio}%)`;
+});
+
+function setVolume(value) {
+    inputRange.val(volue);
+}
+
+
+$(document).ready(function () {
+    const inputRange = $('#inputRange');
+    const volumeImage = $('#volumeImage');
+
+    // 初期設定
+    const initialValue = parseInt(inputRange.val(), 10);
+    let imgSrc = 'volume-2.png'; // デフォルトの画像
+
+    // 値に応じて画像を変更
+    if (initialValue <= 0) {
+        imgSrc = 'volume-0.png'; // 0%
+    } else if (initialValue <= 49) {
+        imgSrc = 'volume-1.png'; // 1% - 49%
+    } else if (initialValue < 100) {
+        imgSrc = 'volume-2.png'; // 50% - 99%
+    } else {
+        imgSrc = 'volume-3.png'; // 100%
+    }
+
+    volumeImage.attr('src', imgSrc); // 画像を更新
+
+    inputRange.on('input', function () {
+        const value = parseInt($(this).val(), 10); // スライダーの値を取得
+        let imgSrc = 'volume-2.png'; // デフォルトの画像
+
+        // 値に応じて画像を変更
+        if (value == 0) {
+            imgSrc = 'volume-0.png'; // 0%
+        } else if (value <= 49) {
+            imgSrc = 'volume-1.png'; // 1% - 49%
+        } else if (value < 100) {
+            imgSrc = 'volume-2.png'; // 50% - 99%
+        } else {
+            imgSrc = 'volume-3.png'; // 100%
+        }
+
+        volumeImage.attr('src', imgSrc); // 画像を更新
+    });
+});
+
+//アラーム音
+const audio = document.getElementById('audio');
+
+// 音量を設定する関数
+function setVolume() {
+    const volume = inputRange.value / 100; // 0.0から1.0の範囲に変換
+    audio.volume = volume; // 音量を設定
+}
+
+// 画像をクリックしたときのイベントリスナー
+volumeImage.addEventListener('click', () => {
+    audio.currentTime = 0; // 音声を最初から再生
+    audio.play(); // 音声を再生
+});
+
+// スライダーの値が変わったときに音量を更新
+inputRange.addEventListener('input', setVolume);
+
+// 初期音量を設定
+setVolume();
+
+function alarmPlay() {
+    audio.play();
+    console.log('アラーム音が鳴りました。')
+}
