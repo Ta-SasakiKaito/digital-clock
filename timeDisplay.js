@@ -823,7 +823,7 @@ function getQueryParam(param) {
 }
 
 // alarmSelectの値を取得
-const alarmSelect = getQueryParam('alarmSelect');
+const alarmSelect = getQueryParam('alarm');
 
 // alarmSelectが指定されている場合、その値を配列に変換
 if (alarmSelect) {
