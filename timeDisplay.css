@@ -162,7 +162,7 @@ body{
 .cp_iptxt{
     position: relative;
     width: calc(50% - 6%);
-    margin: -10px 6%;
+    margin: -10px 3%;
     display: inline-block;
     box-sizing: border-box;
     padding: 0 0px;
@@ -211,7 +211,7 @@ body{
 	left: 0;
 	width: 100%;
 	transition: 0.3s;
-	letter-spacing: 0.5px;
+	letter-spacing: 0px;
     color: #ffffff;
     font-size: 12px;
 }
@@ -228,6 +228,18 @@ body{
     flex-direction: row;
     justify-content: space-between;
     margin: 40px 3%;
+    align-items: center;
+}
+
+.form-group{
+    position: relative;
+}
+
+.alarm-area{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
 }
 
 #subject-form{
@@ -345,3 +357,54 @@ body{
     transform: rotate(90deg);
     right: 24.5px;
 }
+
+.clickable-alarm{
+    height: 30px;
+    width: 25px;
+    flex: 1;
+    margin: 0 10px;
+}
+
+.inputRange {
+    appearance: none;
+    width: 10px;
+    height: 150px;
+    border: 2px solid #cbcbcb;
+    background: linear-gradient(0deg, #bcbcbc 50%, transparent 50%);
+    writing-mode: vertical-rl;
+    direction: rtl;
+    cursor: pointer;
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    border-radius: 1000px;
+  }
+  
+  /* ツマミ：Chrome, Safari, Edge用 */
+  .inputRange::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 26px;
+    height: 26px;
+    border: 2px solid #7b7b7b;
+    border-radius: 9999px;
+    background: #ffffff;
+    box-shadow: none;
+  }
+  
+  /* ツマミ：Firefox用 */
+  .inputRange::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+    border: 2px solid #7b7b7b;
+    border-radius: 9999px;
+    background: #ffffff;
+    box-shadow: none;
+  }
+
+  .volume-image{
+    position: absolute;
+    height: 30px;
+    top: 200px;
+    right: 25px;
+  }
