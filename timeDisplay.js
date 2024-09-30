@@ -40,28 +40,33 @@ function updateDate() {
     //時間
     document.getElementById('time').innerText =
         now.toLocaleTimeString();
+
+    //アラーム
+    shouldTriggerAlarm()
 }
 
 setInterval(updateDate, 250);
 
+/*
+0→日誌なし
+1→日誌あり
+2→日誌なし、次回予告あり(例外扱い。個別で分岐を用意する)
+ */
+const timeTable = [
+    ['startTime', '9:30', '9:40', 0],
+    ['firstPeriod', '9:45', '10:35', 1],
+    ['secondPeriod', '10:45', '11:35', 1],
+    ['thirdPeriod', '11:45', '12:35', 1],
+    ['lunchBreak', '12:35', '13:15', 2],
+    ['fourthPeriod', '13:15', '14:05', 1],
+    ['fifthPeriod', '14:15', '15:05', 1],
+    ['sixthPeriod', '15:15', '16:05', 1],
+    ['endTime', '16:05', '16:20', 0],
+    ['afterSchool', '16:20', '17:00', 2],
+];
+
 function updateSubject() {
-    /*
-    0→日誌なし
-    1→日誌あり
-    2→日誌なし、次回予告あり(例外扱い。個別で分岐を用意する)
-     */
-    const timeTable = [
-        ['startTime', '9:30', '9:40', 0],
-        ['firstPeriod', '9:45', '10:35', 1],
-        ['secondPeriod', '10:45', '11:35', 1],
-        ['thirdPeriod', '11:45', '12:35', 1],
-        ['lunchBreak', '12:35', '13:15', 2],
-        ['fourthPeriod', '13:15', '14:05', 1],
-        ['fifthPeriod', '14:15', '15:05', 1],
-        ['sixthPeriod', '15:15', '16:05', 1],
-        ['endTime', '16:05', '16:20', 0],
-        ['afterSchool', '16:20', '17:00', 2],
-    ];
+
     const schedule = [
         //0.曜日        1.はじまりの会  2.1コマ目  3.2コマ目　4.3コマ目                   5.4コマ目   6.5コマ目       7.6コマ目   8.おわりの会
         ['Monday', 'はじまりの会', 'PBL', 'PBL', ['基礎学習', '上級英語'], '基礎学習', 'プログラミング', '自由選択', 'おわりの会'],
@@ -123,28 +128,6 @@ function updateSubject() {
         start = timeTable[i][1].split(':');
         let startMinutes = parseInt(start[0]) * 60 + parseInt(start[1]);
         if (nowTime >= startMinutes) {
-            let timeTableY = i
-            switch (timeTableY) {
-                case 1:
-                case 2:
-                case 3:
-                    timeTableY = timeTableY - 1;
-                    break;
-                case 5:
-                case 6:
-                case 7:
-                    timeTableY = timeTableY - 2;
-                    break;
-                default:
-                    timeTableY = -1
-                    break;
-            }
-
-            if (nowTime == startMinutes && second == 0 && alarmStates[timeTableY][0]) {
-
-                alarmPlay();
-
-            }
 
             currentSubjectStart = timeTable[i][0];
 
@@ -174,27 +157,6 @@ function updateSubject() {
             currentSubjectEnd = timeTable[timeTable.length - 1][0];
             break;
         }
-    }
-    switch (endY) {
-        case 1:
-        case 2:
-        case 3:
-            endY = endY - 1;
-            break;
-        case 5:
-        case 6:
-        case 7:
-            endY = endY - 2;
-            break;
-        default:
-            endY = -1
-            break;
-    }
-
-    if (nowTime == endMinutes && second == 0 && alarmStates[endY][2]) {
-
-        alarmPlay();
-
     }
 
 
@@ -347,15 +309,6 @@ function updateSubject() {
                 default:
                     timeTableY = -1
                     break;
-            }
-
-
-            if (timeTableY >= 0) {
-                if (alarmStates[timeTableY][1] == 1) {
-                    alarmPlay();
-                    countAlarm++;
-                    console.log(countAlarm);
-                }
             }
 
         }
@@ -806,14 +759,13 @@ function checkTimeout() {
 }
 
 // 18個の画像の状態を格納する2次元配列(初期設定で3~6コマ目の日誌を記入するアラームはオンにする)
-//というより日誌アラーム切り替えボタンしか実装してないので...
 let initialAlarmStates = [
     [0, 0, 0], // alarm-1-1, alarm-1-2, alarm-1-3
     [0, 0, 0], // alarm-2-1, alarm-2-2, alarm-2-3
-    [0, 0, 0], // alarm-3-1, alarm-3-2, alarm-3-3
-    [0, 0, 0], // alarm-4-1, alarm-4-2, alarm-4-3
-    [0, 0, 0], // alarm-5-1, alarm-5-2, alarm-5-3
-    [0, 0, 0]  // alarm-6-1, alarm-6-2, alarm-6-3
+    [0, 1, 0], // alarm-3-1, alarm-3-2, alarm-3-3
+    [0, 1, 0], // alarm-4-1, alarm-4-2, alarm-4-3
+    [0, 1, 0], // alarm-5-1, alarm-5-2, alarm-5-3
+    [0, 1, 0]  // alarm-6-1, alarm-6-2, alarm-6-3
 ];
 
 // URLからクエリパラメータを取得する関数
@@ -904,10 +856,6 @@ inputRange.addEventListener("input", function () {
     this.style.background = `linear-gradient(0deg, ${bgColor} ${ratio}%, transparent ${ratio}%)`;
 });
 
-function setVolume(value) {
-    inputRange.val(volue);
-}
-
 
 $(document).ready(function () {
     const inputRange = $('#inputRange');
@@ -970,7 +918,44 @@ inputRange.addEventListener('input', setVolume);
 // 初期音量を設定
 setVolume();
 
+//時間を見て アラームを流すか
+function shouldTriggerAlarm() {
+    let alarmTimeTable = [
+        [timeTable[1][1], , timeTable[1][2]],
+        [timeTable[2][1], , timeTable[2][2]],
+        [timeTable[3][1], , timeTable[3][2]],
+        [timeTable[5][1], , timeTable[5][2]],
+        [timeTable[6][1], , timeTable[6][2]],
+        [timeTable[7][1], , timeTable[7][2]],
+    ];
+
+    let alarmList = [];
+
+    for (let i = 0; i < alarmTimeTable.length; i++) {
+        alarmTimeTable[i][0] = alarmTimeTable[i][0].split(':').map(Number);
+        alarmTimeTable[i][2] = alarmTimeTable[i][2].split(':').map(Number);
+        alarmTimeTable[i][1] = [alarmTimeTable[i][2][0], alarmTimeTable[i][2][1] - 5];
+
+        for (let j = 0; j < alarmStates[i].length; j++) {
+            if (alarmStates[i][j] === 1) {
+                alarmList.push(alarmTimeTable[i][j]);
+            }
+        }
+
+
+    }
+
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let second = now.getSeconds();
+
+    for (let i = 0; i < alarmList.length; i++) {
+        if (alarmList[i][0] == hours && alarmList[i][1] == minutes && second == 0) {
+            alarmPlay();
+        }
+    }
+}
+
 function alarmPlay() {
     audio.play();
-    console.log('アラーム音が鳴りました。')
 }
