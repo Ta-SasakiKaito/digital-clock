@@ -3,7 +3,17 @@ window.addEventListener('load', function () {
     nowLoad();
     colorChange();
     localStorageClear();
+    titleEdit();
 })
+
+function titleEdit(){
+    let city = getCityFromURL();
+    if(city === 0){
+        return 0;
+    }
+    const currentTitle = document.title;
+    document.title = currentTitle + " - " + city;
+}
 
 //デバック用
 let debugCount = 1;
@@ -387,12 +397,15 @@ const textColorCode = [
     ['night', '#ffffff', '#002436', '#ffffff'],
 ];
 
-let CITY = 'tokyo';
+let CITY;
 
 function colorChange() {//背景と文字の色を変える。インターバルはこっち。
     const API_KEY = 'df3ff73321f444bbb1e2f97a6bfaa639';
 
     CITY = getCityFromURL();
+    if(CITY === 0){
+        CITY = 'tokyo';
+    }
 
     let weather;
 
@@ -429,8 +442,7 @@ function getCityFromURL() {
     if (city) {
         return city;
     }
-    // 存在しない場合はデフォルトの 'tokyo' を使用
-    return CITY;
+    return 0;
 }
 
 function crossFadeColors(pattern) {//背景と文字の色のクロスフェードを行う。デバックならこちら推奨
