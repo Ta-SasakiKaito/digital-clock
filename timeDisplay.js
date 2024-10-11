@@ -455,7 +455,7 @@ function crossFadeColors(pattern) {//背景と文字の色のクロスフェー�
             pattern = pattern + '-morning';
         } else if (hour >= 10 && hour < 16) {//昼
             pattern = pattern + '-afternoon';
-        } else if (hour >= 16 && hour < 18) {//夕方
+        } else if (hour >= 16 && hour < 17) {//夕方
             pattern = pattern + '-evening';
         } else {//夜
             pattern = pattern + '-night';
